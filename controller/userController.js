@@ -32,13 +32,13 @@ const addUser = async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "vinunarwal3@gmail.com",
-                pass: "aocvmkkllxlcjsbk",
+                user: process.env.my_mail,
+                pass: process.env.email_pass,
             },
         });
 
         const mailOptions = {
-            from: "vinunarwal3@gmail.com",
+            from: process.env.my_mail,
             to: email,
             subject: "Registration Successful",
             text: `Dear ${username},\n\nCongratulations! You have successfully registered.\n\nUsername: ${username}\nPassword: ${password}\n\nThank you.`,
@@ -84,7 +84,6 @@ const loginUser = async (req, res) => {
 
         const token = jwt.sign({ email: user.email, userId: user._id }, "secretkey");
 
-        // Respond with token and user ID
         res.status(200).json({
             message: "Login successful",
             token,
@@ -95,4 +94,5 @@ const loginUser = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
 module.exports = { addUser, loginUser };
