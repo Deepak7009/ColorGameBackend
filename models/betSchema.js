@@ -4,6 +4,7 @@ const betSchema = new mongoose.Schema({
   userId: String,
   amount: Number,
   selection: String,
+  periodId: Number,
   timestamp: { type: Date, default: Date.now },
 });
 
