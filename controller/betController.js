@@ -13,11 +13,7 @@ const addBet = async (req, res) => {
   }
   };
 
-  
-  const getNumber= async (req, res) => {
-    const winningNumberColor = Math.floor(Math.random() * 10); // Generate random winning number/color
-  res.status(200).json({ winningNumberColor });
-  };
 
-  module.exports = {addBet, getNumber}
+
+  module.exports = {addBet}
   
