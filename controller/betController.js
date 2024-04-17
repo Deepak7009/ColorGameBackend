@@ -1,20 +1,22 @@
 const Bet = require('../models/betSchema')
 
+
 const addBet = async (req, res) => {
-    const { number, amount } = req.body;
-    try {
-      const bet = new Bet({ number, amount });
-      await bet.save();
-      res.status(201).send("Bet saved successfully");
-    } catch (error) {
-      res.status(500).send(error.message);
-    }
+  try {
+    const { userId, amount, selection, periodId  } = req.body;
+    const bet = new Bet({ userId, amount, selection, periodId  });
+    await bet.save();
+    res.status(200).json({ message: 'Bet placed successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
   };
 
   
   const getNumber= async (req, res) => {
-    const randomNumber = Math.floor(Math.random() * 10); 
-    res.send({ randomNumber });
+    const winningNumberColor = Math.floor(Math.random() * 10); // Generate random winning number/color
+  res.status(200).json({ winningNumberColor });
   };
 
   module.exports = {addBet, getNumber}
