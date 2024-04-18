@@ -13,21 +13,26 @@ const addBet = async (req, res) => {
 };
 
 
+// Inside betController.js
+
 const getLowestBetNumber = async (req, res) => {
   try {
     const periodId = req.params.periodId;
-    console.log('Received Period ID:', periodId); // Log the received periodId
-    const bets = await Bet.aggregate([
-      { $match: { periodId: parseInt(periodId) } }, // Match bets for the specified periodId
-      { $group: { _id: '$selection', lowestAmount: { $min: '$amount' } } }, // Group by selection and find the lowest amount
-      { $sort: { lowestAmount: 1 } }, // Sort by lowest amount ascending
-      { $limit: 1 }, // Limit to the lowest amount
+    const betTotals = await Bet.aggregate([
+      { $match: { periodId: parseInt(periodId) } },
+      { $group: { _id: '$selection', totalAmount: { $sum: '$amount' } } },
+      { $sort: { totalAmount: 1 } },
     ]);
-    console.log('Aggregation Result:', bets); 
-    if (bets.length > 0) {
-      res.status(200).json({ lowestBetNumber: bets[0]._id });
+
+    if (betTotals.length > 0) {
+      const lowestBet = betTotals[0];
+      const multiplyAmount = lowestBet.totalAmount * 9;
+
+      res.status(200).json({
+        lowestBetNumber: lowestBet._id,
+        multiplyAmount,
+      });
     } else {
-      console.log('No bets found for this period');
       res.status(404).json({ message: 'No bets found for this period' });
     }
   } catch (error) {
@@ -35,6 +40,5 @@ const getLowestBetNumber = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 
 module.exports = { addBet, getLowestBetNumber };
