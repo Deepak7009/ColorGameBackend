@@ -20,7 +20,30 @@ const getLowestBetNumber = async (req, res) => {
 
     const betTotals = await Bet.aggregate([
       { $match: { periodId: parseInt(periodId) } }, // Match bets for the specified periodId
-      { $group: { _id: '$selection', totalAmount: { $sum: '$amount' } } }, // Calculate total amount for each selection
+      {
+        $group: {
+          _id: '$selection',
+          totalAmount: { $sum: '$amount' },
+        },
+      }, // Calculate total amount for each selection
+      {
+        $project: {
+          _id: 1,
+          totalAmount: 1,
+          multiplier: {
+            $cond: {
+              if: {
+                $or: [
+                  { $eq: ['$_id', 'Green'] },
+                  { $eq: ['$_id', 'Red'] },
+                ],
+              },
+              then: 2,
+              else: 9,
+            },
+          },
+        },
+      }, // Project the multiplier based on selection (_id)
       { $sort: { totalAmount: 1 } }, // Sort by total amount ascending
     ]);
 
@@ -28,7 +51,7 @@ const getLowestBetNumber = async (req, res) => {
 
     if (betTotals.length > 0) {
       const lowestBet = betTotals[0]; // Get the bet with the lowest total amount
-      const multiplyAmount = lowestBet.totalAmount * 9; // Multiply the lowest amount by 9
+      const multiplyAmount = lowestBet.totalAmount * lowestBet.multiplier; // Multiply the lowest amount by the multiplier
       console.log('Lowest Bet:', lowestBet); // Log the lowest bet details
       console.log('Multiply Amount:', multiplyAmount); // Log the multiplied amount
 
