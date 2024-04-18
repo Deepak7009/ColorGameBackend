@@ -66,13 +66,13 @@ const addUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: "Email and password are required" });
+        if (!username || !password) {
+            return res.status(400).json({ error: "Username and password are required" });
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ username });
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -82,7 +82,7 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ error: "Incorrect password" });
         }
 
-        const token = jwt.sign({ email: user.email, userId: user._id }, "secretkey");
+        const token = jwt.sign({ username: user.username, userId: user._id }, "secretkey");
 
         res.status(200).json({
             message: "Login successful",
