@@ -1,27 +1,73 @@
 const Bet = require("../models/betSchema");
 
+// let greenGive = 0;
+// let redGive = 0;
+totalAmount = 0;
+let numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+let ream = 0;
+let gram = 0;
+
 const addBet = async (req, res) => {
   try {
     const { userId, amount, selection, periodId } = req.body;
-    let multipliedAmount = amount; // Initialize multipliedAmount with the original amount
 
-    // Check the selection and update multipliedAmount accordingly
-    if (selection === 'Green') {
-      multipliedAmount *= 2; // Multiply by 2 if selection is 'green'
-    } else if (selection === 'Red') {
-      multipliedAmount *= 2; // Multiply by 2 if selection is 'red'
-    } else if ([0, 1, 3, 7, 9].includes(parseInt(selection))) {
-      multipliedAmount *= 9; // Multiply by 9 for specific numbers
-    } else {
-      multipliedAmount *= 9; // Multiply by 9 for other selections
+    let winAmount = amount; // Initialize winAmount with the original amount
+    let givenAmount = 0; // Initialize givenAmount to store the sum of winAmounts
+
+    // Check the selection and update winAmount accordingly
+    if (selection === "Green") {
+      winAmount *= 2; // Multiply by 2 if selection is 'Green'
+      givenAmount = winAmount; // Set givenAmount to winAmount for 'Green'
+      gram = gram + winAmount;
+      totalAmount = gram;
+
+      numbers[1] += givenAmount;
+      numbers[3] += givenAmount;
+      numbers[7] += givenAmount;
+      numbers[9] += givenAmount;
+      console.log("this is the numbers array " + numbers);
+    } else if (selection === "Red") {
+      winAmount *= 2; // Multiply by 2 if selection is 'Red'
+      givenAmount = winAmount;
+      ream = ream + winAmount;
+      totalAmount = ream;
+
+      numbers[2] += winAmount;
+      numbers[4] += winAmount;
+      numbers[6] += winAmount;
+      numbers[8] += winAmount;
+      console.log("this is the numbers array " + numbers);
+    } else if ([0, 1, 3, 7, 9, 2, 4, 5, 6, 8].includes(parseInt(selection))) {
+      winAmount *= 9; // Multiply by 9 for specific numbers
+      // Sum winAmount with the winAmount for 'Green' and store in givenAmount
+      // givenAmount = winAmount + (2 * amount);
+      // givenAmount = winAmount + greenGive;
+      numbers[selection] += winAmount;
+      totalAmount = numbers[selection];
+      console.log("this is the numbers array " + numbers);
     }
 
-    const bet = new Bet({ userId, amount: multipliedAmount, selection, periodId });
+    // else if ([2, 4, 5, 6, 8].includes(parseInt(selection))) {
+    //   winAmount *= 9; // Multiply by 9 for other selections
+    //   numbers[selection] += winAmount;
+    //   console.log("this is the numbers array " + numbers);
+    // }
+
+    const bet = new Bet({
+      userId,
+      amount,
+      winAmount,
+      // givenAmount,
+      totalAmount,
+      selection,
+      // greenGive,
+      periodId,
+    });
     await bet.save();
-    res.status(200).json({ message: 'Bet placed successfully' });
+    res.status(200).json({ message: "Bet placed successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
