@@ -1,4 +1,5 @@
 const Bet = require("../models/betSchema");
+const Transaction = require('../models/transactionSchema ');
 
 // let greenGive = 0;
 // let redGive = 0;
@@ -9,6 +10,7 @@ let gram = 0;
 
 const addBet = async (req, res) => {
   try {
+
     const { userId, amount, selection, periodId } = req.body;
 
     let winAmount = amount; // Initialize winAmount with the original amount
@@ -65,16 +67,18 @@ const addBet = async (req, res) => {
     });
     await bet.save();
     res.status(200).json({ message: "Bet placed successfully" });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
+
 const getLowestBetNumber = async (req, res) => {
   try {
     const periodId = req.params.periodId;
-    console.log("Received Period ID:", periodId); // Log the received periodId
+    console.log("Received Period ID:", periodId);
 
     const betTotals = await Bet.aggregate([
       { $match: { periodId: parseInt(periodId) } }, // Match bets for the specified periodId
@@ -111,14 +115,14 @@ const getLowestBetNumber = async (req, res) => {
       { $sort: { totalAmount: 1 } }, // Sort by total amount ascending
     ]);
 
-    console.log("Bet Totals:", betTotals); // Log the calculated totals
+    console.log("Bet Totals:", betTotals);
 
     if (betTotals.length > 0) {
-      const lowestBet = betTotals.find((bet) => bet.multiplier !== null); // Get the lowest bet with a valid multiplier
+      const lowestBet = betTotals.find((bet) => bet.multiplier !== null);
       if (lowestBet) {
-        const multiplyAmount = lowestBet.totalAmount * lowestBet.multiplier; // Multiply the lowest amount by the multiplier
-        console.log("Lowest Bet:", lowestBet); // Log the lowest bet details
-        console.log("Multiply Amount:", multiplyAmount); // Log the multiplied amount
+        const multiplyAmount = lowestBet.totalAmount * lowestBet.multiplier;
+        console.log("Lowest Bet:", lowestBet);
+        console.log("Multiply Amount:", multiplyAmount);
 
         res.status(200).json({
           lowestBetNumber: lowestBet._id,

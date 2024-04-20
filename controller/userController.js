@@ -82,17 +82,21 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ error: "Incorrect password" });
         }
 
-        const token = jwt.sign({ username: user.username, userId: user._id }, "secretkey");
+        const token = jwt.sign({ username: user.username, userId: user._id, mobile: user.mobile }, "secretkey");
+
 
         res.status(200).json({
             message: "Login successful",
             token,
             userId: user._id,
+            mobile: user.mobile, 
         });
-    } catch (error) {
+    }
+    catch (error) {
         console.log(error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
 
 module.exports = { addUser, loginUser };
