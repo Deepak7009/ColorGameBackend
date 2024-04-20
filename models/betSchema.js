@@ -1,6 +1,4 @@
-// models/betSchema.js
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const betSchema = new mongoose.Schema({
   userId: String,
@@ -9,9 +7,10 @@ const betSchema = new mongoose.Schema({
   selection: String,
   periodId: Number,
   transaction: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }, // Reference to Transaction schema
+
   timestamp: { type: Date, default: Date.now },
 });
 
-const Bet = mongoose.model('Bet', betSchema);
+const Bet = mongoose.model("Bet", betSchema);
 
 module.exports = Bet;
