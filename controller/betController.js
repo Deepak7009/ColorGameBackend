@@ -1,5 +1,5 @@
-const Bet = require("../models/betSchema");
-const Transaction = require('../models/transactionSchema ');
+const Bet = require("../models/betSchema"); 
+const User = require("../models/userSchema")
 
 totalAmount = 0;
 let numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -11,8 +11,8 @@ const addBet = async (req, res) => {
 
     const { userId, amount, selection, periodId } = req.body;
 
-    let winAmount = amount; 
-    let givenAmount = 0; 
+    let winAmount = amount;
+    let givenAmount = 0;
 
     // Check the selection and update winAmount accordingly
     if (selection === "Green") {
@@ -63,6 +63,15 @@ const addBet = async (req, res) => {
       // greenGive,
       periodId,
     });
+
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    user.bankBalance -= amount;
+    await user.save(); // Save the updated bank balance
+
     await bet.save();
     res.status(200).json({ message: "Bet placed successfully" });
 
