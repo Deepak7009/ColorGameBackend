@@ -1,8 +1,6 @@
 const Bet = require("../models/betSchema");
 const Transaction = require('../models/transactionSchema ');
 
-// let greenGive = 0;
-// let redGive = 0;
 totalAmount = 0;
 let numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 let ream = 0;
@@ -13,8 +11,8 @@ const addBet = async (req, res) => {
 
     const { userId, amount, selection, periodId } = req.body;
 
-    let winAmount = amount; // Initialize winAmount with the original amount
-    let givenAmount = 0; // Initialize givenAmount to store the sum of winAmounts
+    let winAmount = amount; 
+    let givenAmount = 0; 
 
     // Check the selection and update winAmount accordingly
     if (selection === "Green") {

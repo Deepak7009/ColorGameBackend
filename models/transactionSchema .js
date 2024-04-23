@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const transactionSchema = new mongoose.Schema({
     transactionId: String,
     platform: String,
-    amount: Number, // Added amount field
+    amount: Number,
+    userId: String, // Include userId field
     status: { type: String, enum: ['pending', 'success', 'failed'], default: 'pending' },
     timestamp: { type: Date, default: Date.now },
 });

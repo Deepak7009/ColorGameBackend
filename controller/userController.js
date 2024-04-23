@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer')
-const { User } = require('../models/userSchema');
+const User = require('../models/userSchema');
 
 const addUser = async (req, res) => {
     try {
@@ -24,7 +24,7 @@ const addUser = async (req, res) => {
             username,
             email,
             mobile,
-            password: hashedPassword
+            password: hashedPassword,
         });
 
         await newUser.save();
@@ -83,13 +83,14 @@ const loginUser = async (req, res) => {
         }
 
         const token = jwt.sign({ username: user.username, userId: user._id, mobile: user.mobile }, "secretkey");
-
+        console.log(token);
 
         res.status(200).json({
             message: "Login successful",
             token,
             userId: user._id,
-            mobile: user.mobile, 
+            mobile: user.mobile,
+            bankBalance: user.bankBalance,
         });
     }
     catch (error) {
@@ -99,4 +100,20 @@ const loginUser = async (req, res) => {
 }
 
 
-module.exports = { addUser, loginUser };
+const getUserById = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        // Assuming the bank balance is stored in the user's document
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+module.exports = { addUser, loginUser, getUserById };
+

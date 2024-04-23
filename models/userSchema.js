@@ -4,9 +4,13 @@ const userSchema = new mongoose.Schema({
   username: String,
   email:String,
   mobile:Number,
-  password:String
+  password:String,
+  bankBalance: {
+    type: Number,
+    default: '0'
+ },
 });
 
-const User = mongoose.model('user', userSchema);
+const User = mongoose.model('User', userSchema);
 
-module.exports = { User };
+module.exports = User;

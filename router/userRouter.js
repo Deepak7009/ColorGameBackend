@@ -1,11 +1,14 @@
 const express = require('express');
-const { addUser, loginUser } = require('../controller/userController');
+const { addUser, loginUser, getUserById  } = require('../controller/userController');
 const { addBet, getLowestBetNumber } = require('../controller/betController');
 const {saveTransaction, updateTransactionStatus, getTransactions } = require('../controller/transactionController');
 const router = express.Router();
 
+
 router.post('/register', addUser);
 router.post('/login', loginUser);
+router.get('/user/:userId', getUserById);
+
 
 router.post('/bet', addBet);
 router.get('/lowest/:periodId', getLowestBetNumber); 
