@@ -38,7 +38,7 @@ const addBet = async (req, res) => {
          numbers[6] += winAmount;
          numbers[8] += winAmount;
          console.log("this is the numbers array " + numbers);
-      } else if ([0, 1, 3, 7, 9, 2, 4, 5, 6, 8].includes(parseInt(selection))) {
+      } else if ([1, 3, 7, 9, 2, 4, 6, 8].includes(parseInt(selection))) {
          winAmount *= 9; // Multiply by 9 for specific numbers
          // Sum winAmount with the winAmount for 'Green' and store in givenAmount
          // givenAmount = winAmount + (2 * amount);
@@ -48,7 +48,7 @@ const addBet = async (req, res) => {
          console.log("this is the numbers array " + numbers);
       } else {
          winAmount *= 1.4;
-         givenAmount = winAmount; 
+         givenAmount = winAmount;
          vam = vam + winAmount;
          totalAmount = vam;
 
