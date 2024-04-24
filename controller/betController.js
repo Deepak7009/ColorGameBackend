@@ -3,9 +3,9 @@ const User = require("../models/userSchema")
 
 totalAmount = 0;
 let numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-let ream = 0;
-let gram = 0;
-let vam = 0;
+let redAmount = 0;
+let greenAmount = 0;
+let voiletAmount = 0;
 
 const addBet = async (req, res) => {
    try {
@@ -19,8 +19,8 @@ const addBet = async (req, res) => {
       if (selection === "Green") {
          winAmount *= 2; // Multiply by 2 if selection is 'Green'
          givenAmount = winAmount; // Set givenAmount to winAmount for 'Green'
-         gram = gram + winAmount;
-         totalAmount = gram;
+         greenAmount = greenAmount + winAmount;
+         totalAmount = greenAmount;
 
          numbers[1] += givenAmount;
          numbers[3] += givenAmount;
@@ -30,8 +30,8 @@ const addBet = async (req, res) => {
       } else if (selection === "Red") {
          winAmount *= 2; // Multiply by 2 if selection is 'Red'
          givenAmount = winAmount;
-         ream = ream + winAmount;
-         totalAmount = ream;
+         redAmount = redAmount + winAmount;
+         totalAmount = redAmount;
 
          numbers[2] += winAmount;
          numbers[4] += winAmount;
@@ -39,18 +39,16 @@ const addBet = async (req, res) => {
          numbers[8] += winAmount;
          console.log("this is the numbers array " + numbers);
       } else if ([1, 3, 7, 9, 2, 4, 6, 8].includes(parseInt(selection))) {
-         winAmount *= 9; // Multiply by 9 for specific numbers
-         // Sum winAmount with the winAmount for 'Green' and store in givenAmount
-         // givenAmount = winAmount + (2 * amount);
-         // givenAmount = winAmount + greenGive;
+         winAmount *= 9; 
+         
          numbers[selection] += winAmount;
          totalAmount = numbers[selection];
          console.log("this is the numbers array " + numbers);
       } else {
          winAmount *= 1.4;
          givenAmount = winAmount;
-         vam = vam + winAmount;
-         totalAmount = vam;
+         voiletAmount = voiletAmount + winAmount;
+         totalAmount = voiletAmount;
 
          numbers[0] += givenAmount;
          numbers[5] += givenAmount;
@@ -62,10 +60,8 @@ const addBet = async (req, res) => {
          userId,
          amount,
          winAmount,
-         // givenAmount,
          totalAmount,
          selection,
-         // greenGive,
          periodId,
       });
 
