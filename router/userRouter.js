@@ -2,8 +2,9 @@ const express = require('express');
 const { addUser, loginUser, getUserById  } = require('../controller/userController');
 const { addBet, getLowestBetNumber } = require('../controller/betController');
 const {saveTransaction, updateTransactionStatus, getTransactions } = require('../controller/transactionController');
-const router = express.Router();
+const {saveWithDraw, getwithDraws, updatewithDrawStatus } = require('../controller/withdrawController');
 
+const router = express.Router();
 
 router.post('/register', addUser);
 router.post('/login', loginUser);
@@ -14,9 +15,11 @@ router.post('/bet', addBet);
 router.get('/lowest/:periodId', getLowestBetNumber); 
 
 router.post('/transaction',saveTransaction)
-
 router.get('/transaction', getTransactions)
-
 router.put('/updateStatus', updateTransactionStatus);
+
+router.post('/withDraw',saveWithDraw)
+router.get('/withDraw', getwithDraws)
+router.put('/status', updatewithDrawStatus);
 
 module.exports = router;
