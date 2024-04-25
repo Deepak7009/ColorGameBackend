@@ -107,7 +107,6 @@ const getUserById = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        // Assuming the bank balance is stored in the user's document
         res.status(200).json(user);
     } catch (error) {
         console.error('Error fetching user data:', error);
