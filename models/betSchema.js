@@ -6,8 +6,8 @@ const betSchema = new mongoose.Schema({
   winAmount: Number,
   selection: String,
   periodId: Number,
-  totalAmount:Number,
-  transaction: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }, 
+  totalAmount: Number,
+  transaction: { type: mongoose.Schema.Types.ObjectId, ref: "Transaction" },
 
   timestamp: { type: Date, default: Date.now },
 });
