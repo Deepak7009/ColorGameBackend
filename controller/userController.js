@@ -114,5 +114,24 @@ const getUserById = async (req, res) => {
     }
 }
 
-module.exports = { addUser, loginUser, getUserById };
+const updateUserBankBalance = async (req, res) => {
+   try {
+      const { userId } = req.params;
+      const { bankBalance } = req.body;
+
+      const user = await User.findByIdAndUpdate(userId, { bankBalance }, { new: true });
+
+      if (!user) {
+         return res.status(404).json({ error: "User not found" });
+      }
+
+      res.status(200).json({ message: "User's bank balance updated successfully", user });
+   } catch (error) {
+      console.error("Error updating user's bank balance:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
+};
+
+
+module.exports = { addUser, loginUser, getUserById, updateUserBankBalance };
 
