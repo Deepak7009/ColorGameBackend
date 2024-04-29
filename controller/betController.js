@@ -88,6 +88,7 @@ const getLowestBetNumber = async (req, res) => {
       const periodId = req.params.periodId;
       console.log("Received Period ID:", periodId);
 
+
       const betTotals = await Bet.aggregate([
          { $match: { periodId: parseInt(periodId) } },
          {
@@ -104,24 +105,32 @@ const getLowestBetNumber = async (req, res) => {
                   $cond: {
                      if: {
                         $or: [
-                           { $in: ["$_id", ["Green", "0", "1", "3", "7", "9"]] },
-                           { $in: ["$_id", ["Red", "2", "4", "5", "6", "8"]] },
+                           { $in: ["$_id", ["Green", "Red"]] },
+                           { $in: ["$_id", ["1", "2", "3", "4", "6", "7", "8", "9"]] },
                         ],
                      },
                      then: {
                         $cond: {
-                           if: { $in: ["$_id", ["Green", "0", "1", "3", "7", "9"]] },
-                           then: 2,
-                           else: 9,
+                           if: { $in: ["$_id", ["1", "2", "3", "4", "6", "7", "8", "9"]] },
+                           then: 9, // Multiplier for selections 1, 2, 3, 4, 6, 7, 8, 9
+                           else: 2, // Default multiplier for Green and Red
                         },
                      },
-                     else: null,
+                     else: {
+                        $cond: {
+                           if: { $eq: ["$_id", "Violet"] },
+                           then: 1.4, // Multiplier for Violet
+                           else: 4, // Multiplier for selections 0 and 5
+                        },
+                     },
                   },
                },
             },
          },
          { $sort: { totalAmount: 1 } },
       ]);
+
+      console.log("Bet Totals:", betTotals); 
 
       console.log("Bet Totals:", betTotals);
 
