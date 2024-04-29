@@ -1,90 +1,101 @@
-const withDraw = require('../models/withdrawSchema');
-const User = require('../models/userSchema');
-
+const withDraw = require("../models/withdrawSchema");
+const User = require("../models/userSchema");
 
 const saveWithDraw = async (req, res) => {
-    try {
-        const { upiId, withDrawAmount, userId } = req.body;
+  try {
+    const { upiId, withDrawAmount, userId } = req.body;
 
-        if (!upiId|| !withDrawAmount || !userId) {
-            return res.status(400).json({ error: 'UPI ID and withDrawAmount are required.' });
-        }
-
-        const newwithDraw = new withDraw({ upiId, withDrawAmount, userId });
-        await newwithDraw.save();
-
-        res.status(201).json({ message: 'withDraw details saved successfully', newwithDraw });
+    if (!upiId || !withDrawAmount || !userId) {
+      return res
+        .status(400)
+        .json({ error: "UPI ID and withDrawAmount are required." });
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+
+    const newWithDraw = new withDraw({ upiId, withDrawAmount, userId });
+    await newWithDraw.save();
+
+    res
+      .status(201)
+      .json({ message: "Withdraw details saved successfully", newWithDraw });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
-const getwithDraws = async (req, res) => {
-    const filter = req.query.filter; // Get filter from query parameters
-    let query = {};
+const getWithDraws = async (req, res) => {
+  const filter = req.query.filter; // Get filter from query parameters
+  let query = {};
 
-    // Depending on the filter value, modify the query object to filter withDraws accordingly
-    if (filter === 'pending') {
-        query = { status: 'pending' };
-    } else if (filter === 'success') {
-        query = { status: 'success' };
-    } else if (filter === 'failed') {
-        query = { status: 'failed' };
-    }
+  // Depending on the filter value, modify the query object to filter withdrawals accordingly
+  if (filter === "pending") {
+    query = { status: "pending" };
+  } else if (filter === "success") {
+    query = { status: "success" };
+  } else if (filter === "failed") {
+    query = { status: "failed" };
+  }
 
-    try {
-        // Fetch withDraws based on the constructed query
-        const withDraws = await withDraw.find(query);
-        res.status(200).json(withDraws);
-        //console.log(withDraws)
-    } catch (error) {
-        console.error('Error fetching withDraws:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    // Fetch withdrawals based on the constructed query
+    const withdrawals = await withDraw.find(query);
+    res.status(200).json(withdrawals);
+  } catch (error) {
+    console.error("Error fetching withdrawals:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
-const updatewithDrawStatus = async (req, res) => {
-    try {
-        const { upiId, status } = req.body;
+const updateWithDrawStatus = async (req, res) => {
+  try {
+    const { upiId, status } = req.body;
 
-        // Check if the withDraw is already marked as 'success'
-        const existingwithDraw = await withDraw.findOne({ upiId });
-        if (existingwithDraw && existingwithDraw.status === 'success') {
-            return res.status(400).json({ error: 'withDraw already processed' });
-        }
+    // Update withdrawal status
+    const updatedWithdraw = await withDraw.findOneAndUpdate(
+      { upiId },
+      { status },
+      { new: true }
+    );
 
-        const updatedwithDraw = await withDraw.findOneAndUpdate({ upiId }, { status }, { new: true });
-        let user;
-
-        if (status === 'success') {
-            const withDrawAmount = updatedwithDraw.withDrawAmount;
-
-            //console.log ( "withDraw withDrawAmount :", withDrawAmount) 
-
-            const userId = updatedwithDraw.userId;
-            //console.log ( "userId  :", userId) 
-
-            const user = await User.findOne({ _id: userId });
-            //console.log ( "user  :", user) 
-
-            if (!user) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-
-            // Update the user's withDrawAmount
-            user.bankBalance -= withDrawAmount;
-            console.log("updated withDrawAmount :", user.bankBalance)
-            await user.save();
-        }
-
-        res.status(200).json({ message: 'withDraw status updated successfully', bankBalance: user ? user.bankBalance : null });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+    // If no withdrawal is found, return 404
+    if (!updatedWithdraw) {
+      return res.status(404).json({ error: "Withdrawal not found" });
     }
+
+    // If the withdrawal is already marked as 'success', return 400
+    if (updatedWithdraw.status === "success") {
+      return res.status(400).json({ error: "Withdraw already processed" });
+    }
+
+    let user;
+
+    // If status is 'success', update user's bank balance
+    if (status === "success") {
+      const withDrawAmount = updatedWithdraw.withDrawAmount;
+      const userId = updatedWithdraw.userId;
+
+      // Find the user
+      user = await User.findOne({ _id: userId });
+
+      // If user is not found, return 404
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Update the user's bank balance
+      user.bankBalance -= withDrawAmount;
+      console.log("Updated bank balance :", user.bankBalance);
+      await user.save();
+    }
+
+    res.status(200).json({
+      message: "Withdraw status updated successfully",
+      bankBalance: user ? user.bankBalance : null,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
-
-module.exports = { saveWithDraw, getwithDraws, updatewithDrawStatus };
+module.exports = { saveWithDraw, getWithDraws, updateWithDrawStatus };
