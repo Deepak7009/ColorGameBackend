@@ -40,6 +40,4 @@ const startTimer = async (req, res) => {
   };
   
   
-  
-
 module.exports = { startTimer, getTimer };

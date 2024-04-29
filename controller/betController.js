@@ -89,13 +89,13 @@ const getLowestBetNumber = async (req, res) => {
       console.log("Received Period ID:", periodId);
 
       const betTotals = await Bet.aggregate([
-         { $match: { periodId: parseInt(periodId) } }, // Match bets for the specified periodId
+         { $match: { periodId: parseInt(periodId) } },
          {
             $group: {
                _id: "$selection",
                totalAmount: { $sum: "$amount" },
             },
-         }, // Calculate total amount for each selection
+         },
          {
             $project: {
                _id: 1,
@@ -119,8 +119,8 @@ const getLowestBetNumber = async (req, res) => {
                   },
                },
             },
-         }, // Project the multiplier based on selection (_id)
-         { $sort: { totalAmount: 1 } }, // Sort by total amount ascending
+         },
+         { $sort: { totalAmount: 1 } },
       ]);
 
       console.log("Bet Totals:", betTotals);
@@ -134,7 +134,7 @@ const getLowestBetNumber = async (req, res) => {
 
             res.status(200).json({
                lowestBetNumber: lowestBet._id,
-               multiplyAmount,
+               multiplier: lowestBet.multiplier,
             });
          } else {
             console.log("No valid bets found for this period");
@@ -152,4 +152,20 @@ const getLowestBetNumber = async (req, res) => {
    }
 };
 
-module.exports = { addBet, getLowestBetNumber };
+
+const getWinningBets = async (req, res) => {
+   try {
+      const { periodId, result } = req.params;
+
+      // Fetch bets where the selection matches the result for the given period ID
+      const winningBets = await Bet.find({ periodId, selection: result });
+
+      res.status(200).json({ winningBets });
+
+   } catch (error) {
+      console.error("Error fetching winning bets:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
+};
+
+module.exports = { addBet, getLowestBetNumber, getWinningBets };
