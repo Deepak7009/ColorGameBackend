@@ -155,9 +155,13 @@ const getLowestBetNumber = async (req, res) => {
                .status(404)
                .json({ message: "No valid bets found for this period" });
          }
-      } else {
-         console.log("No bets found for this period");
-         res.status(404).json({ message: "No bets found for this period" });
+      }else {
+         console.log("No bets found for this period, selecting random");
+         const randomSelection = Math.floor(Math.random() * 10); // Random number between 0 and 9
+         res.status(200).json({
+            lowestBetNumber: randomSelection.toString(), // Convert to string
+            multiplier: 2, // Default multiplier for random selection
+         });
       }
    } catch (error) {
       console.error("Error:", error);
