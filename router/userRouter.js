@@ -13,7 +13,7 @@ router.get('/user/:userId', getUserById);
 router.post('/bet', addBet);
 router.get('/lowest/:periodId', getLowestBetNumber); 
 router.get('/bet/result/:periodId/:result', getWinningBets); 
-router.patch('/user/:userId', updateUserBankBalance); 
+router.put('/user/:userId', updateUserBankBalance); 
 
 
 router.post('/transaction',saveTransaction)
