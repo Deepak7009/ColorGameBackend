@@ -92,6 +92,7 @@ const loginUser = async (req, res) => {
             mobile: user.mobile,
             bankBalance: user.bankBalance,
         });
+        console.log("token : ", token)
     }
     catch (error) {
         console.log(error);

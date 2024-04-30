@@ -3,6 +3,7 @@ const { addUser, loginUser, getUserById, updateUserBankBalance  } = require('../
 const { addBet, getLowestBetNumber, getWinningBets, getAllUserBets } = require('../controller/betController');
 const {saveTransaction, updateTransactionStatus, getTransactions } = require('../controller/transactionController');
 const { getTimer, startTimer } = require('../controller/timerController');
+const {saveWithDraw, getwithDraws, updatewithDrawStatus} =require('../controller/withdrawController')
 const router = express.Router();
 
 router.post('/register', addUser);
@@ -21,6 +22,10 @@ router.get('/bets/:userId/:periodId',getAllUserBets)
 router.post('/transaction',saveTransaction)
 router.get('/transaction', getTransactions)
 router.put('/updateStatus', updateTransactionStatus);
+
+router.post('/withDraw',saveWithDraw)
+router.get('/withDraw', getwithDraws)
+router.put('/status', updatewithDrawStatus);
 
 router.get("/timer", getTimer);
 router.post("/timer/start", startTimer);
