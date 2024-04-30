@@ -92,6 +92,7 @@ const getLowestBetNumber = async (req, res) => {
       const periodId = req.params.periodId;
       console.log("Received Period ID:", periodId);
 
+
       const betTotals = await Bet.aggregate([
          { $match: { periodId: parseInt(periodId) } },
          {
@@ -108,22 +109,22 @@ const getLowestBetNumber = async (req, res) => {
                   $cond: {
                      if: {
                         $or: [
-                           { $in: ["$_id", ["Green", "1", "3", "7", "9"]] },
-                           { $in: ["$_id", ["Red", "2", "4", "6", "8"]] },
+                           { $in: ["$_id", ["Green", "Red"]] },
+                           { $in: ["$_id", ["1", "2", "3", "4", "6", "7", "8", "9"]] },
                         ],
                      },
-                     then: 2, // Default multiplier value
+                     then: {
+                        $cond: {
+                           if: { $in: ["$_id", ["1", "2", "3", "4", "6", "7", "8", "9"]] },
+                           then: 9, // Multiplier for selections 1, 2, 3, 4, 6, 7, 8, 9
+                           else: 2, // Default multiplier for Green and Red
+                        },
+                     },
                      else: {
                         $cond: {
                            if: { $eq: ["$_id", "Violet"] },
-                           then: 1.4, // Multiplier for "Violet"
-                           else: {
-                              $cond: {
-                                 if: { $in: ["$_id", ["0", "5"]] },
-                                 then: 4, // Multiplier for "0" or "5"
-                                 else: 9, // Default multiplier for other selections
-                              },
-                           },
+                           then: 1.4, // Multiplier for Violet
+                           else: 4, // Multiplier for selections 0 and 5
                         },
                      },
                   },
@@ -180,4 +181,22 @@ const getWinningBets = async (req, res) => {
    }
 };
 
-module.exports = { addBet, getLowestBetNumber, getWinningBets };
+
+const getAllUserBets = async (req, res) => {
+   try {
+      const {userId}= req.body;
+
+      // Fetch all bets placed by the user
+      const userBets = await Bet.find();
+      //console.log(userBets);
+
+      res.status(200).json({ userBets });
+
+   } catch (error) {
+      console.error("Error fetching user bets:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
+};
+
+
+module.exports = { addBet, getLowestBetNumber, getWinningBets, getAllUserBets };
