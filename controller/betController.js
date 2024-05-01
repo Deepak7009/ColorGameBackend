@@ -13,9 +13,9 @@ const addBet = async (req, res) => {
       const { userId, amount, selection, periodId } = req.body;
 
       let winAmount = amount;
+      let outcome = 'Loss';
       let givenAmount = 0;
 
-      // Check the selection and update winAmount accordingly
       if (selection === "Green") {
          winAmount *= 2; // Multiply by 2 if selection is 'Green'
          givenAmount = winAmount; // Set givenAmount to winAmount for 'Green'
@@ -40,9 +40,6 @@ const addBet = async (req, res) => {
          console.log("this is the numbers array " + numbers);
       } else if ([1, 3, 7, 9, 2, 4, 6, 8].includes(parseInt(selection))) {
          winAmount *= 9; // Multiply by 9 for specific numbers
-         // Sum winAmount with the winAmount for 'Green' and store in givenAmount
-         // givenAmount = winAmount + (2 * amount);
-         // givenAmount = winAmount + greenGive;
          numbers[selection] += winAmount;
          totalAmount = numbers[selection];
          console.log("this is the numbers array " + numbers);
@@ -62,11 +59,10 @@ const addBet = async (req, res) => {
          userId,
          amount,
          winAmount,
-         // givenAmount,
          totalAmount,
          selection,
-         // greenGive,
          periodId,
+         outcome
       });
 
 
@@ -85,6 +81,35 @@ const addBet = async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
    }
 };
+
+
+const updateBetOutcome = async (req, res) => {
+   try {
+      const { userId, periodId, selection, outcome } = req.body;
+
+      // Find the bet by userId, periodId, and selection
+      const bet = await Bet.findOne({ userId, periodId, selection });
+
+      if (!bet) {
+         return res.status(404).json({ error: "Bet not found" });
+      }
+
+      bet.outcome = outcome;
+      await bet.save();
+      console.log("Bet:", bet);
+
+      res.status(200).json({
+         message: "Bet outcome updated successfully",
+         bet: bet 
+      });
+   } catch (error) {
+      console.error("Error updating bet outcome:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
+};
+
+
+
 
 
 const getLowestBetNumber = async (req, res) => {
@@ -134,8 +159,6 @@ const getLowestBetNumber = async (req, res) => {
          { $sort: { totalAmount: 1 } },
       ]);
 
-      console.log("Bet Totals:", betTotals); 
-
       console.log("Bet Totals:", betTotals);
 
       if (betTotals.length > 0) {
@@ -169,8 +192,6 @@ const getLowestBetNumber = async (req, res) => {
 const getWinningBets = async (req, res) => {
    try {
       const { periodId, result } = req.params;
-
-      // Fetch bets where the selection matches the result for the given period ID
       const winningBets = await Bet.find({ periodId, selection: result });
 
       res.status(200).json({ winningBets });
@@ -184,11 +205,8 @@ const getWinningBets = async (req, res) => {
 
 const getAllUserBets = async (req, res) => {
    try {
-      const {userId}= req.body;
-
-      // Fetch all bets placed by the user
-      const userBets = await Bet.find();
-      //console.log(userBets);
+      const userId = req.params.userId;
+      const userBets = await Bet.find({ userId: userId });
 
       res.status(200).json({ userBets });
 
@@ -199,4 +217,5 @@ const getAllUserBets = async (req, res) => {
 };
 
 
-module.exports = { addBet, getLowestBetNumber, getWinningBets, getAllUserBets };
+module.exports = { addBet, getLowestBetNumber, getWinningBets, getAllUserBets, updateBetOutcome };
+
