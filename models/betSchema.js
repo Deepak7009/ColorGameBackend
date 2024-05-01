@@ -7,6 +7,7 @@ const betSchema = new mongoose.Schema({
   selection: String,
   periodId: Number,
   totalAmount: Number,
+  outcome: String,
   transaction: { type: mongoose.Schema.Types.ObjectId, ref: "Transaction" },
 
   timestamp: { type: Date, default: Date.now },
