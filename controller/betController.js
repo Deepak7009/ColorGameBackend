@@ -94,18 +94,21 @@ const updateBetOutcome = async (req, res) => {
          return res.status(404).json({ error: "Bet not found" });
       }
 
-      // Update the outcome
       bet.outcome = outcome;
-
-      // Save the updated bet
       await bet.save();
+      console.log("Bet:", bet);
 
-      res.status(200).json({ message: "Bet outcome updated successfully" });
+      res.status(200).json({
+         message: "Bet outcome updated successfully",
+         bet: bet 
+      });
    } catch (error) {
       console.error("Error updating bet outcome:", error);
       res.status(500).json({ error: "Internal server error" });
    }
 };
+
+
 
 
 
