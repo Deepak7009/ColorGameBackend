@@ -92,82 +92,68 @@ const getLowestBetNumber = async (req, res) => {
       const periodId = req.params.periodId;
       console.log("Received Period ID:", periodId);
 
+      // Query to find bets for the specified period ID
+      const bets = await Bet.find({ periodId: parseInt(periodId) }).select('selection amount');
 
-      const betTotals = await Bet.aggregate([
-         { $match: { periodId: parseInt(periodId) } },
-         {
-            $group: {
-               _id: "$selection",
-               totalAmount: { $sum: "$amount" },
-            },
-         },
-         {
-            $project: {
-               _id: 1,
-               totalAmount: 1,
-               multiplier: {
-                  $cond: {
-                     if: {
-                        $or: [
-                           { $in: ["$_id", ["Green", "Red"]] },
-                           { $in: ["$_id", ["1", "2", "3", "4", "6", "7", "8", "9"]] },
-                        ],
-                     },
-                     then: {
-                        $cond: {
-                           if: { $in: ["$_id", ["1", "2", "3", "4", "6", "7", "8", "9"]] },
-                           then: 9, // Multiplier for selections 1, 2, 3, 4, 6, 7, 8, 9
-                           else: 2, // Default multiplier for Green and Red
-                        },
-                     },
-                     else: {
-                        $cond: {
-                           if: { $eq: ["$_id", "Violet"] },
-                           then: 1.4, // Multiplier for Violet
-                           else: 4, // Multiplier for selections 0 and 5
-                        },
-                     },
-                  },
-               },
-            },
-         },
-         { $sort: { totalAmount: 1 } },
-      ]);
+      console.log("Bets for Period ID:", bets);
 
-      console.log("Bet Totals:", betTotals); 
+      if (bets.length > 0) {
+         const betMap = new Map();
 
-      console.log("Bet Totals:", betTotals);
+         // Calculate total amount for each selection
+         bets.forEach(bet => {
+            const { selection, amount } = bet;
+            const totalAmount = betMap.has(selection) ? betMap.get(selection) + amount : amount;
+            betMap.set(selection, totalAmount);
+         });
 
-      if (betTotals.length > 0) {
-         const lowestBet = betTotals.find((bet) => bet.multiplier !== null);
-         if (lowestBet) {
-            const multiplyAmount = lowestBet.totalAmount * lowestBet.multiplier;
-            console.log("Lowest Bet:", lowestBet);
+         // Check if any selection from 0 to 9 is missing
+         const missingSelections = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].filter(selection => !betMap.has(selection));
+
+         if (missingSelections.length > 0) {
+            // If there are missing selections, choose the lowest missing selection as the lowest bet number
+            const lowestBetNumber = missingSelections.reduce((min, current) => (parseInt(current) < parseInt(min) ? current : min));
+
+            console.log("Lowest Bet Number (Missing):", lowestBetNumber);
+
+            res.status(200).json({
+               lowestBetNumber: lowestBetNumber,
+               multiplier: 2, // You can adjust the multiplier as needed
+            });
+         } else {
+            // If all selections from 0 to 9 have been bet on, choose the lowest bet based on total amount
+            const sortedBets = [...betMap.entries()].sort((a, b) => a[1] - b[1]);
+            const lowestBet = sortedBets[0];
+
+            let multiplier = 2;
+            if (['1', '2', '3', '4', '6', '7', '8', '9'].includes(lowestBet[0])) {
+               multiplier = 9; 
+            } else if (lowestBet[0] === 'Violet') {
+               multiplier = 1.4;
+            } else if (['0', '5'].includes(lowestBet[0])) {
+               multiplier = 4.5;
+            }
+
+            const multiplyAmount = lowestBet[1] * multiplier;
+            console.log("Lowest Bet (Total Amount):", lowestBet);
             console.log("Multiply Amount:", multiplyAmount);
 
             res.status(200).json({
-               lowestBetNumber: lowestBet._id,
-               multiplier: lowestBet.multiplier,
+               lowestBetNumber: lowestBet[0],
+               multiplier: multiplier,
             });
-         } else {
-            console.log("No valid bets found for this period");
-            res
-               .status(404)
-               .json({ message: "No valid bets found for this period" });
          }
-      }else {
-         console.log("No bets found for this period, selecting random");
-         const randomSelection = Math.floor(Math.random() * 10); // Random number between 0 and 9
-         res.status(200).json({
-            lowestBetNumber: randomSelection.toString(), // Convert to string
-            multiplier: 2, // Default multiplier for random selection
-         });
+      } else {
+         console.log("No bets found for this period");
+         res.status(404).json({ message: "No bets found for this period" });
       }
    } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ error: "Internal server error" });
    }
 };
+
+
 
 
 const getWinningBets = async (req, res) => {
