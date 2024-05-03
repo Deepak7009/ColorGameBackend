@@ -85,5 +85,4 @@ const updateTransactionStatus = async (req, res) => {
     }
 };
 
-
 module.exports = { saveTransaction, getTransactions, updateTransactionStatus };

@@ -8,9 +8,15 @@ const betSchema = new mongoose.Schema({
   periodId: Number,
   totalAmount: Number,
   outcome: String,
-  transaction: { type: mongoose.Schema.Types.ObjectId, ref: "Transaction" },
+  transaction: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Transaction"
+  },
 
-  timestamp: { type: Date, default: Date.now },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  },
 });
 
 const Bet = mongoose.model("Bet", betSchema);
