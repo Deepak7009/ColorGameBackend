@@ -62,15 +62,20 @@ const callprice = async (userId, amount, selection, periodId) => {
 
 const addBet = async (req, res) => {
   const { userId, amount, selection, periodId } = req.body;
+  let winAmount = 0;
   try {
-    const winAmount = await callprice(userId, amount, selection, periodId);
+      const getPeriodIdFromDB = await Bet.find().sort( [['_id', -1]]).limit(1)
+      console.log('getPeriodIdFromDB:, periodId',getPeriodIdFromDB, getPeriodIdFromDB[0]?.periodId, periodId);
+    if (getPeriodIdFromDB && getPeriodIdFromDB[0]?.periodId === periodId) {
+      console.log('Period IDs match:', periodId);
+      winAmount = await callprice(userId, amount, selection, periodId);
+    } else {
+      console.log('Period IDs do not match. Resetting numbers array.');
+      numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      winAmount = await callprice(userId, amount, selection, periodId);
+    }
 
-   //  if (res.periodId === periodId) {
-   //    callprice(userId, amount, selection, periodId);
-   //  } else {
-   //    numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-   //    callprice(userId, amount, selection, periodId);
-   //  }
+   //  const winAmount = await callprice(userId, amount, selection, periodId);
 
     const bet = new Bet({
       userId,
