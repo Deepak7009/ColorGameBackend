@@ -1,5 +1,6 @@
 const Bet = require("../models/betSchema");
-const User = require("../models/userSchema")
+const User = require("../models/userSchema");
+const PeriodInfo = require("../models/periodInfoSchema ");
 
 totalAmount = 0;
 let numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -13,7 +14,7 @@ const addBet = async (req, res) => {
       const { userId, amount, selection, periodId } = req.body;
 
       let winAmount = amount;
-      let outcome = 'Loss';
+      let outcome = 'Pending';
       let givenAmount = 0;
 
       if (selection === "Green") {
@@ -82,35 +83,49 @@ const addBet = async (req, res) => {
    }
 };
 
-
 const updateBetOutcome = async (req, res) => {
    try {
-      const { userId, periodId, selection, outcome } = req.body;
+      const { periodId, result } = req.body;
 
-      // Find the bet by userId, periodId, and selection
-      const bet = await Bet.findOne({ userId, periodId, selection });
-
-      if (!bet) {
-         return res.status(404).json({ error: "Bet not found" });
+      // Check if the outcomes have already been updated for this period
+      const periodInfo = await PeriodInfo.findOne({ periodId });
+      if (periodInfo && periodInfo.outcomeUpdated) {
+         // Outcomes already updated for this period, no need to update again
+         return res.status(200).json({ message: "Bet outcomes already updated for this period" });
       }
 
-      bet.outcome = outcome;
-      await bet.save();
-      console.log("Bet:", bet);
+      // Find all bets for the specified period
+      const allBets = await Bet.find({ periodId });
 
-      res.status(200).json({
-         message: "Bet outcome updated successfully",
-         bet: bet 
-      });
+      // Update outcome to 'Win' for winning bets
+      const winningBets = allBets.filter(bet => bet.selection === result);
+      await Promise.all(winningBets.map(async (bet) => {
+         bet.outcome = 'Win';
+         await bet.save();
+         
+      }));
+
+      // Update outcome to 'Loss' for non-winning bets
+      const nonWinningBets = allBets.filter(bet => bet.selection !== result);
+      await Promise.all(nonWinningBets.map(async (bet) => {
+         bet.outcome = 'Loss';
+         await bet.save();
+      }));
+
+      // Update periodInfo to indicate that outcomes have been updated for this period
+      if (!periodInfo) {
+         await PeriodInfo.create({ periodId, outcomeUpdated: true });
+      } else {
+         periodInfo.outcomeUpdated = true;
+         await periodInfo.save();
+      }
+
+      res.status(200).json({ message: "Bet outcomes updated successfully" });
    } catch (error) {
-      console.error("Error updating bet outcome:", error);
+      console.error("Error updating bet outcomes:", error);
       res.status(500).json({ error: "Internal server error" });
    }
 };
-
-
-
-
 
 const getLowestBetNumber = async (req, res) => {
    try {
@@ -188,6 +203,18 @@ const getLowestBetNumber = async (req, res) => {
    }
 };
 
+const getAllUserBets = async (req, res) => {
+   try {
+      const userId = req.params.userId;
+      const userBets = await Bet.find({ userId: userId });
+
+      res.status(200).json({ userBets });
+
+   } catch (error) {
+      console.error("Error fetching user bets:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
+};
 
 const getWinningBets = async (req, res) => {
    try {
@@ -202,20 +229,5 @@ const getWinningBets = async (req, res) => {
    }
 };
 
-
-const getAllUserBets = async (req, res) => {
-   try {
-      const userId = req.params.userId;
-      const userBets = await Bet.find({ userId: userId });
-
-      res.status(200).json({ userBets });
-
-   } catch (error) {
-      console.error("Error fetching user bets:", error);
-      res.status(500).json({ error: "Internal server error" });
-   }
-};
-
-
-module.exports = { addBet, getLowestBetNumber, getWinningBets, getAllUserBets, updateBetOutcome };
+module.exports = { addBet, getLowestBetNumber, getAllUserBets, updateBetOutcome, getWinningBets };
 

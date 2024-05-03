@@ -133,6 +133,5 @@ const updateUserBankBalance = async (req, res) => {
    }
 };
 
-
 module.exports = { addUser, loginUser, getUserById, updateUserBankBalance };
 
