@@ -7,63 +7,70 @@ let redgiveamount = 0;
 let greengiveamount = 0;
 let purplegiveamount = 0;
 
+const callprice = async (userId, amount, selection, periodId) => {
+  let winAmount = amount;
+  let winAmount2 = amount;
+  let givenAmount = 0;
+  let givenAmount2 = 0;
+
+  if (selection === "Green") {
+    winAmount *= 2; // Multiply by 2 if selection is 'Green'
+    winAmount2 *= 1.5;
+    givenAmount = winAmount; // Set givenAmount to winAmount for 'Green'
+    givenAmount2 = winAmount2; // Set givenAmount to winAmount for 'Green'
+    greengiveamount = greengiveamount + winAmount;
+    totalAmount = greengiveamount;
+
+    numbers[0] += givenAmount2;
+    numbers[1] += givenAmount;
+    numbers[3] += givenAmount;
+    numbers[7] += givenAmount;
+    numbers[9] += givenAmount;
+    console.log("this is the numbers array " + numbers);
+  } else if (selection === "Red") {
+    winAmount *= 2; // Multiply by 2 if selection is 'red'
+    winAmount2 *= 1.5;
+    givenAmount = winAmount; // Set givenAmount to winAmount for 'red'
+    givenAmount2 = winAmount2; // Set givenAmount to winAmount for 'red'
+    redgiveamount = redgiveamount + winAmount;
+    totalAmount = redgiveamount;
+
+    numbers[5] += winAmount2;
+    numbers[2] += winAmount;
+    numbers[4] += winAmount;
+    numbers[6] += winAmount;
+    numbers[8] += winAmount;
+    console.log("this is the numbers array " + numbers);
+  } else if (selection === "Violet") {
+    winAmount *= 4.5; // Multiply by 4.5 if selection is 'Violet'
+    givenAmount = winAmount;
+    purplegiveamount = purplegiveamount + givenAmount;
+    totalAmount = purplegiveamount;
+
+    numbers[0] += winAmount;
+    numbers[5] += winAmount;
+    console.log("this is the numbers array " + numbers);
+  } else if ([1, 3, 7, 9, 2, 4, 6, , 0, 5, 8].includes(parseInt(selection))) {
+    winAmount *= 9; // Multiply by 9 for specific numbers
+    numbers[selection] += winAmount;
+    totalAmount = numbers[selection];
+    console.log("this is the numbers array " + numbers);
+  }
+
+  return winAmount;
+};
+
 const addBet = async (req, res) => {
+  const { userId, amount, selection, periodId } = req.body;
   try {
-    const { userId, amount, selection, periodId } = req.body;
+    const winAmount = await callprice(userId, amount, selection, periodId);
 
-    let winAmount = amount;
-    let winAmount2 = amount;
-    let givenAmount = 0;
-    let givenAmount2 = 0;
-
-    // Check the selection and update winAmount accordingly
-
-    if (selection === "Green") {
-      winAmount *= 2; // Multiply by 2 if selection is 'Green'
-      winAmount2 *= 1.5;
-      givenAmount = winAmount; // Set givenAmount to winAmount for 'Green'
-      givenAmount2 = winAmount2; // Set givenAmount to winAmount for 'Green'
-      greengiveamount = greengiveamount + winAmount;
-      totalAmount = greengiveamount;
-
-      numbers[0] += givenAmount2;
-      numbers[1] += givenAmount;
-      numbers[3] += givenAmount;
-      numbers[7] += givenAmount;
-      numbers[9] += givenAmount;
-      console.log("this is the numbers array " + numbers);
-    } else if (selection === "Red") {
-      winAmount *= 2; // Multiply by 2 if selection is 'red'
-      winAmount2 *= 1.5;
-      givenAmount = winAmount; // Set givenAmount to winAmount for 'red'
-      givenAmount2 = winAmount2; // Set givenAmount to winAmount for 'red'
-      redgiveamount = redgiveamount + winAmount;
-      totalAmount = redgiveamount;
-
-      numbers[5] += winAmount2;
-      numbers[2] += winAmount;
-      numbers[4] += winAmount;
-      numbers[6] += winAmount;
-      numbers[8] += winAmount;
-      console.log("this is the numbers array " + numbers);
-    } else if (selection === "Violet") {
-      winAmount *= 4.5; // Multiply by 4.5 if selection is 'Violet'
-      givenAmount = winAmount;
-      purplegiveamount = purplegiveamount + givenAmount;
-      totalAmount = purplegiveamount;
-
-      numbers[0] += winAmount;
-      numbers[5] += winAmount;
-      console.log("this is the numbers array " + numbers);
-    } else if ([1, 3, 7, 9, 2, 4, 6, , 0, 5, 8].includes(parseInt(selection))) {
-      winAmount *= 9; // Multiply by 9 for specific numbers
-      // Sum winAmount with the winAmount for 'Green' and store in givenAmount
-      // givenAmount = winAmount + (2 * amount);
-      // givenAmount = winAmount + greenGive;
-      numbers[selection] += winAmount;
-      totalAmount = numbers[selection];
-      console.log("this is the numbers array " + numbers);
-    }
+   //  if (res.periodId === periodId) {
+   //    callprice(userId, amount, selection, periodId);
+   //  } else {
+   //    numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+   //    callprice(userId, amount, selection, periodId);
+   //  }
 
     const bet = new Bet({
       userId,
