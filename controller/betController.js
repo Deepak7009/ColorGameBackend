@@ -143,11 +143,11 @@ const getWinningBets = async (req, res) => {
 
     // Helper function to get color associated with a number
     const getColorForNumber = (number) => {
-      if ([1, 3, 7, 9].includes(number)) {
+      if (["1", "3", "7", "9"].includes(number)) {
         return "Green";
-      } else if ([2,4,6, 8].includes(number)) {
+      } else if (["2","4","6", "8"].includes(number)) {
         return "Red";
-      } else if ([0, 5].includes(number)) {
+      } else if (["0", "5"].includes(number)) {
         return "Violet";
       } else {
         return null;
@@ -206,11 +206,11 @@ const updateBetOutcome = async (req, res) => {
 };
 
 const getColorForNumber = (number) => {
-  if ([1, 3, 7, 9].includes(number)) {
+  if (["1", "3", "7", "9"].includes(number)) {
     return "Green";
-  } else if ([2,4,6, 8].includes(number)) {
+  } else if (["2","4","6", "8"].includes(number)) {
     return "Red";
-  } else if ([0, 5].includes(number)) {
+  } else if (["0", "5"].includes(number)) {
     return "Violet";
   } else {
     return null;
