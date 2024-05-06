@@ -18,7 +18,7 @@ const callprice = async (userId, amount, selection, periodId) => {
     winAmount2 *= 1.5;
     givenAmount = winAmount; // Set givenAmount to winAmount for 'Green'
     givenAmount2 = winAmount2; // Set givenAmount to winAmount for 'Green'
-    greengiveamount = greengiveamount + winAmount;
+   //  greengiveamount = greengiveamount + winAmount;
     totalAmount = greengiveamount;
 
     numbers[0] += givenAmount2;
@@ -32,7 +32,7 @@ const callprice = async (userId, amount, selection, periodId) => {
     winAmount2 *= 1.5;
     givenAmount = winAmount; // Set givenAmount to winAmount for 'red'
     givenAmount2 = winAmount2; // Set givenAmount to winAmount for 'red'
-    redgiveamount = redgiveamount + winAmount;
+   //  redgiveamount = redgiveamount + winAmount;
     totalAmount = redgiveamount;
 
     numbers[5] += winAmount2;
@@ -64,18 +64,25 @@ const addBet = async (req, res) => {
   const { userId, amount, selection, periodId } = req.body;
   let winAmount = 0;
   try {
-      const getPeriodIdFromDB = await Bet.find().sort( [['_id', -1]]).limit(1)
-      console.log('getPeriodIdFromDB:, periodId',getPeriodIdFromDB, getPeriodIdFromDB[0]?.periodId, periodId);
+    const getPeriodIdFromDB = await Bet.find()
+      .sort([["_id", -1]])
+      .limit(1);
+    console.log(
+      "getPeriodIdFromDB:, periodId",
+      getPeriodIdFromDB,
+      getPeriodIdFromDB[0]?.periodId,
+      periodId
+    );
     if (getPeriodIdFromDB && getPeriodIdFromDB[0]?.periodId === periodId) {
-      console.log('Period IDs match:', periodId);
+      console.log("Period IDs match:", periodId);
       winAmount = await callprice(userId, amount, selection, periodId);
     } else {
-      console.log('Period IDs do not match. Resetting numbers array.');
+      console.log("Period IDs do not match. Resetting numbers array.");
       numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       winAmount = await callprice(userId, amount, selection, periodId);
     }
 
-   //  const winAmount = await callprice(userId, amount, selection, periodId);
+    //  const winAmount = await callprice(userId, amount, selection, periodId);
 
     const bet = new Bet({
       userId,
@@ -128,54 +135,67 @@ const getLowestBetNumber = async (req, res) => {
       });
 
       // Check if any selection from 0 to 9 is missing
-      const missingSelections = [
-        "0",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-      ].filter((selection) => !betMap.has(selection));
+      // const missingSelections = [
+      //   "0",
+      //   "1",
+      //   "2",
+      //   "3",
+      //   "4",
+      //   "5",
+      //   "6",
+      //   "7",
+      //   "8",
+      //   "9",
+      // ].filter((selection) => !betMap.has(selection));
 
-      if (missingSelections.length > 0) {
-        // If there are missing selections, choose the lowest missing selection as the lowest bet number
-        const lowestBetNumber = missingSelections.reduce((min, current) =>
-          parseInt(current) < parseInt(min) ? current : min
-        );
+      // if (missingSelections.length > 0) {
+      //   // If there are missing selections, choose the lowest missing selection as the lowest bet number
+      //   const lowestBetNumber = missingSelections.reduce((min, current) =>
+      //     parseInt(current) < parseInt(min) ? current : min
+      //   );
 
-        console.log("Lowest Bet Number (Missing):", lowestBetNumber);
+      //   console.log("Lowest Bet Number (Missing):", lowestBetNumber);
 
-        res.status(200).json({
-          lowestBetNumber: lowestBetNumber,
-          multiplier: 2, // You can adjust the multiplier as needed
-        });
-      } else {
-        // If all selections from 0 to 9 have been bet on, choose the lowest bet based on total amount
-        const sortedBets = [...betMap.entries()].sort((a, b) => a[1] - b[1]);
-        const lowestBet = sortedBets[0];
+      //   res.status(200).json({
+      //     lowestBetNumber: lowestBetNumber,
+      //     multiplier: 2, // You can adjust the multiplier as needed
+      //   });
+      // } else {
+      //   // If all selections from 0 to 9 have been bet on, choose the lowest bet based on total amount
+      //   const sortedBets = [...betMap.entries()].sort((a, b) => a[1] - b[1]);
+      //   const lowestBet = sortedBets[0];
 
-        let multiplier = 2;
-        if (["1", "2", "3", "4", "6", "7", "8", "9"].includes(lowestBet[0])) {
-          multiplier = 9;
-        } else if (lowestBet[0] === "Violet") {
-          multiplier = 1.4;
-        } else if (["0", "5"].includes(lowestBet[0])) {
-          multiplier = 4.5;
-        }
+      //   let multiplier = 2;
+      //   if (["1", "2", "3", "4", "6", "7", "8", "9"].includes(lowestBet[0])) {
+      //     multiplier = 9;
+      //   } else if (lowestBet[0] === "Violet") {
+      //     multiplier = 1.4;
+      //   } else if (["0", "5"].includes(lowestBet[0])) {
+      //     multiplier = 4.5;
+      //   }
 
-        const multiplyAmount = lowestBet[1] * multiplier;
-        console.log("Lowest Bet (Total Amount):", lowestBet);
-        console.log("Multiply Amount:", multiplyAmount);
+      //   const multiplyAmount = lowestBet[1] * multiplier;
+      //   console.log("Lowest Bet (Total Amount):", lowestBet);
+      //   console.log("Multiply Amount:", multiplyAmount);
 
-        res.status(200).json({
-          lowestBetNumber: lowestBet[0],
-          multiplier: multiplier,
-        });
-      }
+     
+      // }
+      const leastTotalAmountNumber = numbers.reduce(
+         (minIndex, currentAmount, currentIndex, array) => {
+           return currentAmount < array[minIndex] ? currentIndex : minIndex;
+         },
+         0
+       );
+           console.log("Least Total Amount Index:", leastTotalAmountNumber);
+
+       res.status(200).json({
+
+        lowestBetNumber: leastTotalAmountNumber,
+        totalAmount: numbers[leastTotalAmountNumber],
+
+        //  lowestBetNumber: lowestBet[0],
+        //  multiplier: multiplier,
+       });
     } else {
       console.log("No bets found for this period");
       res.status(404).json({ message: "No bets found for this period" });
