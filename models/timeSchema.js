@@ -9,7 +9,7 @@ const timeSchema = new mongoose.Schema({
   time: {
     type: Number,
     required: true,
-    default: 60, // Default time is 60 seconds
+    default: 60, 
   },
 
   startTime: {
@@ -18,13 +18,17 @@ const timeSchema = new mongoose.Schema({
   },
   endTime: {
     type: Date,
-    default: () => Date.now() + 60000, // Default end time is 1 minute after start time
+    default: () => Date.now() + 60000, 
   },
   isActive: {
     type: Boolean,
-    default: true, // Initially, the period is active
+    default: true, 
   },
-
+  wonNumber: {
+    type: Number,
+    required: true,
+    default: 0, 
+  },
 });
 
 const Time = mongoose.model("Time", timeSchema);

@@ -92,8 +92,8 @@ const addBet = async (req, res) => {
     }
     user.bankBalance -= amount;
     await user.save(); 
-
     await bet.save();
+
     res.status(200).json({ message: "Bet placed successfully" });
   } catch (error) {
     console.error(error);
@@ -117,6 +117,8 @@ const getLowestBetNumber = async (req, res) => {
       lowestBetNumber: leastTotalAmountNumber,
       totalAmount: numbers[leastTotalAmountNumber],
     });
+    //console.log("LowestBetNumber : ", lowestBetNumber)
+
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal server error" });

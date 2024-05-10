@@ -19,12 +19,12 @@ const startTime = async (req, res) => {
           await Time.updateOne({ _id: currentTime._id }, { isActive: false });
         }
 
-
         const newTime = new Time({
           periodId,
           time: 60,
           startTime: moment(),
-          endTime: moment().add(1, 'minute'), // Set end time 1 minute after start time
+          endTime: moment().add(1, 'minute'),
+          wonNumber: req.body.wonNumber, // Update wonNumber based on request body
         });
         await newTime.save();
 
@@ -34,8 +34,7 @@ const startTime = async (req, res) => {
       }
     };
 
-    // Set the interval to reset the time every minute
-    timeInterval = setInterval(resetTime, 60000); // 60000 milliseconds = 1 minute
+    timeInterval = setInterval(resetTime, 60000);
 
     console.log("Time started/reset successfully.");
     res.status(200).json({ message: "Time started/reset successfully." });
@@ -50,14 +49,12 @@ const getTime = async (req, res) => {
     let time = await Time.findOne().sort({ periodId: -1 });
     if (!time) {
       console.log("Time not found.");
-      //time = await Time.create({ time: 60 }); // Initialize time if not found
     }
 
-     // Calculate remaining time based on startTime and endTime
-     const now = moment();
-     const endTime = moment(time.endTime);
-     const remainingTime = Math.max(0, endTime.diff(now, 'seconds')); // Calculate remaining time in seconds
-     time.time = remainingTime;
+    const now = moment();
+    const endTime = moment(time.endTime);
+    const remainingTime = Math.max(0, endTime.diff(now, 'seconds')); // Calculate remaining time in seconds
+    time.time = remainingTime;
 
 
     console.log("Time fetched successfully:", time);
@@ -73,5 +70,30 @@ const getTime = async (req, res) => {
   }
 };
 
+const getLatestPeriods = async (req, res) => {
+  try {
+    const latestPeriods = await Time.find({ isActive: false }).sort({ periodId: -1 }).limit(10);
+    res.status(200).json({ Periods: latestPeriods });
+  } catch (error) {
+    console.error("Error fetching latest periods:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
-module.exports = { startTime, getTime };
+
+const updateWonNumber = async (req, res) => {
+  try {
+    const { periodId, newWonNumber } = req.body;
+    const updatedTime = await Time.findOneAndUpdate(
+      { periodId: periodId },
+      { $set: { wonNumber: newWonNumber } },
+      { new: true }
+    );
+    res.status(200).json({ message: "Won number updated successfully", updatedTime });
+  } catch (error) {
+    console.error("Error updating won number:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+module.exports = { startTime, getTime, getLatestPeriods, updateWonNumber };
