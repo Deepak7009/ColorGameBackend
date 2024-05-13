@@ -92,8 +92,8 @@ const addBet = async (req, res) => {
     }
     user.bankBalance -= amount;
     await user.save(); 
-
     await bet.save();
+
     res.status(200).json({ message: "Bet placed successfully" });
   } catch (error) {
     console.error(error);
@@ -117,6 +117,8 @@ const getLowestBetNumber = async (req, res) => {
       lowestBetNumber: leastTotalAmountNumber,
       totalAmount: numbers[leastTotalAmountNumber],
     });
+    //console.log("LowestBetNumber : ", lowestBetNumber)
+
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -143,11 +145,11 @@ const getWinningBets = async (req, res) => {
 
     // Helper function to get color associated with a number
     const getColorForNumber = (number) => {
-      if ([1, 3, 7, 9].includes(number)) {
+      if (["1", "3", "7", "9"].includes(number)) {
         return "Green";
-      } else if ([2,4,6, 8].includes(number)) {
+      } else if (["2","4","6", "8"].includes(number)) {
         return "Red";
-      } else if ([0, 5].includes(number)) {
+      } else if (["0", "5"].includes(number)) {
         return "Violet";
       } else {
         return null;
@@ -206,11 +208,11 @@ const updateBetOutcome = async (req, res) => {
 };
 
 const getColorForNumber = (number) => {
-  if ([1, 3, 7, 9].includes(number)) {
+  if (["1", "3", "7", "9"].includes(number)) {
     return "Green";
-  } else if ([2,4,6, 8].includes(number)) {
+  } else if (["2","4","6", "8"].includes(number)) {
     return "Red";
-  } else if ([0, 5].includes(number)) {
+  } else if (["0", "5"].includes(number)) {
     return "Violet";
   } else {
     return null;
