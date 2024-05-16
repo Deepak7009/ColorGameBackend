@@ -10,7 +10,7 @@ const startTime = async (req, res) => {
     const resetTime = async () => {
       try {
         let currentTime = await Time.findOne().sort({ _id: -1 }).limit(1);
-        let periodId = 1;
+        let periodId = 1234567891;
         if (currentTime) {
           periodId = currentTime.periodId + 1;
         }

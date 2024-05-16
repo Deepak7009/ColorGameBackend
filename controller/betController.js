@@ -175,8 +175,21 @@ const updateBetOutcome = async (req, res) => {
 
     const periodInfo = await PeriodInfo.findOne({ periodId });
     if (periodInfo && periodInfo.outcomeUpdated) {
-      return res.status(200).json({ message: "Bet outcomes already updated for this period" });
+      return res.status(200).json({ 
+        message: "Bet outcomes already updated for this period" });
     }
+
+    const getColorForNumber = (number) => {
+      if (["1", "3", "7", "9"].includes(number)) {
+        return "Green";
+      } else if (["2","4","6", "8"].includes(number)) {
+        return "Red";
+      } else if (["0", "5"].includes(number)) {
+        return "Violet";
+      } else {
+        return null;
+      }
+    };
 
     const allBets = await Bet.find({ periodId });
 
@@ -204,18 +217,6 @@ const updateBetOutcome = async (req, res) => {
   } catch (error) {
     console.error("Error updating bet outcomes:", error);
     res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-const getColorForNumber = (number) => {
-  if (["1", "3", "7", "9"].includes(number)) {
-    return "Green";
-  } else if (["2","4","6", "8"].includes(number)) {
-    return "Red";
-  } else if (["0", "5"].includes(number)) {
-    return "Violet";
-  } else {
-    return null;
   }
 };
 
