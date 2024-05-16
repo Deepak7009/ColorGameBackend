@@ -192,7 +192,7 @@ const updateBetOutcome = async (req, res) => {
     };
 
     const allBets = await Bet.find({ periodId });
-
+    console.log("allBets", allBets);
     const winningBets = allBets.filter(
       bet => bet.selection === result || getColorForNumber(result) === bet.selection);
     await Promise.all(winningBets.map(async (bet) => {

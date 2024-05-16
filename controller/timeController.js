@@ -1,48 +1,48 @@
 const Time = require("../models/timeSchema");
 const moment = require("moment");
 
-let timeInterval;
+//let timeInterval;
 
-const startTime = async (req, res) => {
-  try {
-    console.log("Starting/resetting time...");
+//const startTime = async (req, res) => {
+//  try {
+//    console.log("Starting/resetting time...");
 
-    const resetTime = async () => {
-      try {
-        let currentTime = await Time.findOne().sort({ _id: -1 }).limit(1);
-        let periodId = 1234567891;
-        if (currentTime) {
-          periodId = currentTime.periodId + 1;
-        }
+//    const resetTime = async () => {
+//      try {
+//        let currentTime = await Time.findOne().sort({ _id: -1 }).limit(1);
+//        let periodId = 1234567891;
+//        if (currentTime) {
+//          periodId = currentTime.periodId + 1;
+//        }
 
-        if (currentTime) {
-          await Time.updateOne({ _id: currentTime._id }, { isActive: false });
-        }
+//        if (currentTime) {
+//          await Time.updateOne({ _id: currentTime._id }, { isActive: false });
+//        }
 
-        const newTime = new Time({
-          periodId,
-          time: 60,
-          startTime: moment(),
-          endTime: moment().add(1, 'minute'),
-          wonNumber: req.body.wonNumber, // Update wonNumber based on request body
-        });
-        await newTime.save();
+//        const newTime = new Time({
+//          periodId,
+//          time: 60,
+//          startTime: moment(),
+//          endTime: moment().add(1, 'minute'),
+//          wonNumber: req.body.wonNumber, // Update wonNumber based on request body
+//        });
+//        await newTime.save();
 
-        console.log("New time created for period ID:", periodId);
-      } catch (error) {
-        console.error("Error resetting time:", error);
-      }
-    };
+//        console.log("New time created for period ID:", periodId);
+//      } catch (error) {
+//        console.error("Error resetting time:", error);
+//      }
+//    };
 
-    timeInterval = setInterval(resetTime, 60000);
+//    timeInterval = setInterval(resetTime, 60000);
 
-    console.log("Time started/reset successfully.");
-    res.status(200).json({ message: "Time started/reset successfully." });
-  } catch (error) {
-    console.error("Error starting/resetting time:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+//    console.log("Time started/reset successfully.");
+//    res.status(200).json({ message: "Time started/reset successfully." });
+//  } catch (error) {
+//    console.error("Error starting/resetting time:", error);
+//    res.status(500).json({ error: "Internal server error" });
+//  }
+//};
 
 const getTime = async (req, res) => {
   try {
@@ -96,4 +96,4 @@ const updateWonNumber = async (req, res) => {
   }
 };
 
-module.exports = { startTime, getTime, getLatestPeriods, updateWonNumber };
+module.exports = { getTime, getLatestPeriods, updateWonNumber };
