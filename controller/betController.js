@@ -165,6 +165,37 @@ const addBet = async (req, res) => {
 const getLowestBetNumber = async (req, res) => {
   try {
     const periodId = req.params.periodId;
+
+    console.log("Received Period ID:", periodId);
+
+    // Get period result directly
+    const timePeriodNumberResult = await Time.findOne({
+      periodId
+    });
+
+    if (!timePeriodNumberResult) {
+      return res.status(404).json({
+        error: "Period result not found"
+      });
+    }
+
+    res.status(200).json({
+      lowestBetNumber: timePeriodNumberResult.wonNumber,
+      totalAmount: numbers[timePeriodNumberResult.wonNumber],
+    });
+
+  } catch (error) {
+    console.error("Error:", error);
+
+    res.status(500).json({
+      error: "Internal server error"
+    });
+  }
+};
+
+const getLowestBetNumberOld = async (req, res) => {
+  try {
+    const periodId = req.params.periodId;
     console.log("Received Period ID:", periodId);
 
     // Example:
