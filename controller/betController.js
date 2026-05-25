@@ -107,6 +107,55 @@ const getLowestBetNumber = async (req, res) => {
     const periodId = req.params.periodId;
     console.log("Received Period ID:", periodId);
 
+    // Example:
+    // const numbers = [0, 5, 0, 2, 0];
+
+    // Find minimum value
+    const minValue = Math.min(...numbers);
+
+    // Get previous period result
+    const previousPeriodWonNumber = await Time.findOne({
+      periodId: periodId - 1,
+    });
+
+    const previousWon = previousPeriodWonNumber?.wonNumber;
+
+    // Get all indexes having minimum value
+    let minIndexes = numbers
+      .map((value, index) => (value === minValue ? index : null))
+      .filter(index => index !== null);
+
+    // If there are multiple minimum indexes,
+    // remove previous won number from choices
+    if (
+      minIndexes.length > 1 &&
+      minIndexes.includes(previousWon)
+    ) {
+      minIndexes = minIndexes.filter(
+        index => index !== previousWon
+      );
+    }
+
+    // Pick random index
+    const randomIndex =
+      minIndexes[Math.floor(Math.random() * minIndexes.length)];
+
+    res.status(200).json({
+      lowestBetNumber: randomIndex,
+      totalAmount: numbers[randomIndex],
+    });
+
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getLowestBetNumberOld = async (req, res) => {
+  try {
+    const periodId = req.params.periodId;
+    console.log("Received Period ID:", periodId);
+
     // Calculate totalAmount for each number in the numbers array
     const leastTotalAmountNumber = 
     numbers.reduce((minIndex, currentAmount, currentIndex, array) => {
