@@ -16,7 +16,7 @@ const callprice = async (userId, amount, selection, periodId) => {
 
   if (selection === "Green") {
     winAmount *= 2;
-    winAmount2 *= 1.5;
+    winAmount2 *= 0.5;
     givenAmount = winAmount;
     givenAmount2 = winAmount2;
     greengiveamount = greengiveamount + winAmount;
@@ -30,7 +30,7 @@ const callprice = async (userId, amount, selection, periodId) => {
     console.log("this is the numbers array " + numbers);
   } else if (selection === "Red") {
     winAmount *= 2;
-    winAmount2 *= 1.5;
+    winAmount2 *= 0.5;
     givenAmount = winAmount;
     givenAmount2 = winAmount2;
     redgiveamount = redgiveamount + winAmount;
@@ -101,7 +101,7 @@ const addBet = async (req, res) => {
   }
 };
 
-const getLowestBetNumber = async (req, res) => {
+const getLowestBetNumberold = async (req, res) => {
   try {
     const periodId = req.params.periodId;
     console.log("Received Period ID:", periodId);
@@ -175,6 +175,92 @@ const getLowestBetNumber = async (req, res) => {
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getLowestBetNumber = async (req, res) => {
+  try {
+    const periodId = req.params.periodId;
+
+    const bets = await Bet.find({
+      periodId: Number(periodId)
+    });
+
+    // total exposure for numbers 0-9
+    const numbers = Array(10).fill(0);
+
+    bets.forEach(bet => {
+      let { selection, winAmount } = bet;
+
+      selection = selection.toString();
+
+      // GREEN
+      if (selection === "Green") {
+
+        numbers[0] += winAmount * 0.5;
+
+        numbers[1] += winAmount;
+        numbers[3] += winAmount;
+        numbers[7] += winAmount;
+        numbers[9] += winAmount;
+      }
+
+      // RED
+      else if (selection === "Red") {
+
+        numbers[5] += winAmount * 0.5;
+
+        numbers[2] += winAmount;
+        numbers[4] += winAmount;
+        numbers[6] += winAmount;
+        numbers[8] += winAmount;
+      }
+
+      // VIOLET
+      else if (selection === "Violet") {
+
+        numbers[0] += winAmount;
+        numbers[5] += winAmount;
+      }
+
+      // DIRECT NUMBER
+      else if (
+        !isNaN(selection) &&
+        Number(selection) >= 0 &&
+        Number(selection) <= 9
+      ) {
+        numbers[Number(selection)] += winAmount;
+      }
+    });
+
+    console.log("Numbers Exposure:", numbers);
+
+    // minimum exposure
+    const minValue = Math.min(...numbers);
+
+    // all numbers with lowest exposure
+    const minIndexes = numbers
+      .map((value, index) =>
+        value === minValue ? index : null
+      )
+      .filter(index => index !== null);
+
+    // random lowest number
+    const randomIndex =
+      minIndexes[Math.floor(Math.random() * minIndexes.length)];
+
+    res.status(200).json({
+      lowestBetNumber: randomIndex,
+      totalAmount: minValue,
+      numbers
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Internal server error"
+    });
   }
 };
 
