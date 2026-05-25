@@ -15,9 +15,9 @@ const callprice = async (userId, amount, selection, periodId) => {
   let givenAmount2 = 0;
 
   if (selection === "Green") {
-    winAmount *= 2; 
+    winAmount *= 2;
     winAmount2 *= 1.5;
-    givenAmount = winAmount; 
+    givenAmount = winAmount;
     givenAmount2 = winAmount2;
     greengiveamount = greengiveamount + winAmount;
     totalAmount = greengiveamount;
@@ -29,10 +29,10 @@ const callprice = async (userId, amount, selection, periodId) => {
     numbers[9] += givenAmount;
     console.log("this is the numbers array " + numbers);
   } else if (selection === "Red") {
-    winAmount *= 2; 
+    winAmount *= 2;
     winAmount2 *= 1.5;
-    givenAmount = winAmount; 
-    givenAmount2 = winAmount2; 
+    givenAmount = winAmount;
+    givenAmount2 = winAmount2;
     redgiveamount = redgiveamount + winAmount;
     totalAmount = redgiveamount;
 
@@ -43,7 +43,7 @@ const callprice = async (userId, amount, selection, periodId) => {
     numbers[8] += winAmount;
     console.log("this is the numbers array " + numbers);
   } else if (selection === "Violet") {
-    winAmount *= 4.5; 
+    winAmount *= 4.5;
     givenAmount = winAmount;
     purplegiveamount = purplegiveamount + givenAmount;
     totalAmount = purplegiveamount;
@@ -52,7 +52,7 @@ const callprice = async (userId, amount, selection, periodId) => {
     numbers[5] += winAmount;
     console.log("this is the numbers array " + numbers);
   } else if ([1, 3, 7, 9, 2, 4, 6, , 0, 5, 8].includes(parseInt(selection))) {
-    winAmount *= 9; 
+    winAmount *= 9;
     numbers[selection] += winAmount;
     totalAmount = numbers[selection];
     console.log("this is the numbers array " + numbers);
@@ -83,7 +83,7 @@ const addBet = async (req, res) => {
       totalAmount,
       selection,
       periodId,
-      outcome:'Pending'
+      outcome: 'Pending'
     });
 
     const user = await User.findById(userId);
@@ -91,7 +91,7 @@ const addBet = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     user.bankBalance -= amount;
-    await user.save(); 
+    await user.save();
     await bet.save();
 
     res.status(200).json({ message: "Bet placed successfully" });
@@ -109,6 +109,44 @@ const getLowestBetNumber = async (req, res) => {
     // Example numbers array
     // const numbers = [10, 5, 2, 2, 7];
 
+    const allBetNumbers = await Bet.aggregate([
+      {
+        $group: {
+          _id: "$selection",
+          totalWinAmount: { $sum: "$winAmount" }
+        }
+      }
+    ]);
+
+    // Create totals for all numbers 0-9
+    const totals = Array.from({ length: 10 }, (_, i) => {
+      const found = allBetNumbers.find(
+        item => item._id === i.toString() || item._id === i
+      );
+
+      return {
+        number: i,
+        totalWinAmount: found ? found.totalWinAmount : 0
+      };
+    });
+
+    // Find lowest total
+    const minWinAmount = Math.min(
+      ...totals.map(item => item.totalWinAmount)
+    );
+
+    // Get all numbers having the lowest total
+    const lowestNumbers = totals.filter(
+      item => item.totalWinAmount === minWinAmount
+    );
+
+    // Pick random one
+    const randomLowest =
+      lowestNumbers[Math.floor(Math.random() * lowestNumbers.length)];
+
+    console.log("Selected Number:", randomLowest.number);
+    console.log("Lowest Total WinAmount:", randomLowest.totalWinAmount);
+
     // Find the minimum value
     const minValue = Math.min(...numbers);
 
@@ -124,6 +162,7 @@ const getLowestBetNumber = async (req, res) => {
     res.status(200).json({
       lowestBetNumber: randomIndex,
       totalAmount: minValue,
+      randomLowest: randomLowest
     });
 
   } catch (error) {
@@ -153,7 +192,7 @@ const getWinningBets = async (req, res) => {
     const getColorForNumber = (number) => {
       if (["1", "3", "7", "9"].includes(number)) {
         return "Green";
-      } else if (["2","4","6", "8"].includes(number)) {
+      } else if (["2", "4", "6", "8"].includes(number)) {
         return "Red";
       } else if (["0", "5"].includes(number)) {
         return "Violet";
@@ -181,14 +220,15 @@ const updateBetOutcome = async (req, res) => {
 
     const periodInfo = await PeriodInfo.findOne({ periodId });
     if (periodInfo && periodInfo.outcomeUpdated) {
-      return res.status(200).json({ 
-        message: "Bet outcomes already updated for this period" });
+      return res.status(200).json({
+        message: "Bet outcomes already updated for this period"
+      });
     }
 
     const getColorForNumber = (number) => {
       if (["1", "3", "7", "9"].includes(number)) {
         return "Green";
-      } else if (["2","4","6", "8"].includes(number)) {
+      } else if (["2", "4", "6", "8"].includes(number)) {
         return "Red";
       } else if (["0", "5"].includes(number)) {
         return "Violet";
