@@ -27,7 +27,7 @@ const timeSchema = new mongoose.Schema({
   wonNumber: {
     type: Number,
     required: true,
-    default: () => Math.floor(Math.random() * 10), 
+    default: 0,
   },
 });
 
