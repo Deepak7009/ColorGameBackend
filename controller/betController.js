@@ -102,7 +102,7 @@ const addBet = async (req, res) => {
 };
 
 
-const getLowestBetNumber = async (req, res) => {
+const getLowestBetNumberOld = async (req, res) => {
   try {
     const periodId = req.params.periodId;
     console.log("Received Period ID:", periodId);
@@ -118,6 +118,37 @@ const getLowestBetNumber = async (req, res) => {
       totalAmount: numbers[leastTotalAmountNumber],
     });
     //console.log("LowestBetNumber : ", lowestBetNumber)
+
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getLowestBetNumber = async (req, res) => {
+  try {
+    const periodId = req.params.periodId;
+    console.log("Received Period ID:", periodId);
+
+    // Example numbers array
+    // const numbers = [0, 5, 0, 2, 0];
+
+    // Find the minimum value
+    const minValue = Math.min(...numbers);
+
+    // Get all indexes having the minimum value
+    const minIndexes = numbers
+      .map((value, index) => (value === minValue ? index : null))
+      .filter(index => index !== null);
+
+    // Pick a random index among the minimum values
+    const randomIndex =
+      minIndexes[Math.floor(Math.random() * minIndexes.length)];
+
+    res.status(200).json({
+      lowestBetNumber: randomIndex,
+      totalAmount: numbers[randomIndex],
+    });
 
   } catch (error) {
     console.error("Error:", error);
