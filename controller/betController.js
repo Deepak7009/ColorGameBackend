@@ -102,7 +102,7 @@ const addBet = async (req, res) => {
 };
 
 
-const getLowestBetNumber = async (req, res) => {
+const getLowestBetNumberold = async (req, res) => {
   try {
     const periodId = req.params.periodId;
     console.log("Received Period ID:", periodId);
@@ -151,7 +151,7 @@ const getLowestBetNumber = async (req, res) => {
   }
 };
 
-const getLowestBetNumberOld = async (req, res) => {
+const getLowestBetNumber = async (req, res) => {
   try {
     const periodId = req.params.periodId;
     console.log("Received Period ID:", periodId);
