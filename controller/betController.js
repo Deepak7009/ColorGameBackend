@@ -165,72 +165,11 @@ const addBet = async (req, res) => {
 const getLowestBetNumber = async (req, res) => {
   try {
     const periodId = req.params.periodId;
-
-    console.log("Received Period ID:", periodId);
-
-    // Get period result directly
-    const timePeriodNumberResult = await Time.findOne({
+    const timePeriod = await Time.findOne({
       periodId
-    });
+    })
 
-    if (!timePeriodNumberResult) {
-      return res.status(404).json({
-        error: "Period result not found"
-      });
-    }
-
-    res.status(200).json({
-      lowestBetNumber: timePeriodNumberResult.wonNumber,
-      totalAmount: numbers[timePeriodNumberResult.wonNumber],
-    });
-
-  } catch (error) {
-    console.error("Error:", error);
-
-    res.status(500).json({
-      error: "Internal server error"
-    });
-  }
-};
-
-const getLowestBetNumberOld = async (req, res) => {
-  try {
-    const periodId = req.params.periodId;
-    console.log("Received Period ID:", periodId);
-
-    // Example:
-    // const numbers = [0, 5, 0, 2, 0];
-
-    // Find minimum value
-    const minValue = Math.min(...numbers);
-
-    // Get previous period result
-    const previousPeriodWonNumber = await Time.findOne({
-      periodId: periodId - 1,
-    });
-
-    const previousWon = previousPeriodWonNumber?.wonNumber;
-
-    // Get all indexes having minimum value
-    let minIndexes = numbers
-      .map((value, index) => (value === minValue ? index : null))
-      .filter(index => index !== null);
-
-    // If there are multiple minimum indexes,
-    // remove previous won number from choices
-    if (
-      minIndexes.length > 1 &&
-      minIndexes.includes(previousWon)
-    ) {
-      minIndexes = minIndexes.filter(
-        index => index !== previousWon
-      );
-    }
-
-    // Pick random index
-    const randomIndex =
-      minIndexes[Math.floor(Math.random() * minIndexes.length)];
-
+    const randomIndex = timePeriod.wonNumber;
     res.status(200).json({
       lowestBetNumber: randomIndex,
       totalAmount: numbers[randomIndex],
