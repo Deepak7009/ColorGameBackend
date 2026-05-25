@@ -167,7 +167,7 @@ const getLowestBetNumber = async (req, res) => {
       minIndexes[Math.floor(Math.random() * minIndexes.length)];
 
     res.status(200).json({
-      lowestBetNumber: randomIndex,
+      lowestBetNumber: randomLowest.number || randomIndex,
       totalAmount: minValue,
       randomLowest: randomLowest
     });
