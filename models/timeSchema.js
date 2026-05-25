@@ -5,11 +5,11 @@ const timeSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  
+
   time: {
     type: Number,
     required: true,
-    default: 60, 
+    default: 60,
   },
 
   startTime: {
@@ -18,16 +18,18 @@ const timeSchema = new mongoose.Schema({
   },
   endTime: {
     type: Date,
-    default: () => Date.now() + 60000, 
+    default: () => Date.now() + 60000,
   },
   isActive: {
     type: Boolean,
-    default: true, 
+    default: true,
   },
   wonNumber: {
     type: Number,
     required: true,
-    default: 0, 
+    default: function randomDigit() {
+      return Math.floor(Math.random() * 10);
+    },
   },
 });
 
