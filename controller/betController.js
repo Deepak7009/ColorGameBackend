@@ -109,17 +109,21 @@ const getLowestBetNumber = async (req, res) => {
     // Example numbers array
     // const numbers = [10, 5, 2, 2, 7];
 
-    const allBetNumbers = await Bet.aggregate({
-      periodId
-    },
-      [
-        {
-          $group: {
-            _id: "$selection",
-            totalWinAmount: { $sum: "$winAmount" }
+    const allBetNumbers = await Bet.aggregate([
+      {
+        $match: {
+          periodId: Number(periodId)
+        }
+      },
+      {
+        $group: {
+          _id: "$selection",
+          totalWinAmount: {
+            $sum: "$winAmount"
           }
         }
-      ]);
+      }
+    ]);
 
     // Create totals for all numbers 0-9
     const totals = Array.from({ length: 10 }, (_, i) => {
