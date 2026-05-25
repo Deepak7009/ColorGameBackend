@@ -20,7 +20,6 @@ const conn = async () => {
         time: 60,
         startTime: moment(),
         endTime: moment().add(1, 'minute'),
-        wonNumber: 0,
       });
       await newTime.save();
 
